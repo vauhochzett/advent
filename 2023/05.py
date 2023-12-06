@@ -61,8 +61,8 @@ def min_location_from_seeds(seeds, maps) -> int:
 # --- Part One --- #
 
 def part_one():
-	seed_definition, maps = given()
-	return min_location_from_seeds(seed_definition, maps)
+	seeds, maps = given()
+	return min_location_from_seeds(seeds, maps)
 
 # --- Part Two --- #
 
