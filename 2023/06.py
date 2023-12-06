@@ -103,8 +103,23 @@ def part_one():
 
 # --- Part Two --- #
 
+def process_number_line(line: str) -> list[int]:
+	"""Convert string with a single number separated by arbitrary number of spaces into an `int`."""
+	line = line[11:]
+	line_normalized = re.sub(" +", "", line.strip())
+	return int(line_normalized)
+
+def given_two():
+	with open(FILE_TO_READ, encoding="utf-8") as given_file:
+		lines = [l.rstrip("\n") for l in given_file.readlines()]
+	time = process_number_line(lines[0])
+	distance = process_number_line(lines[1])
+	return Race(time, distance)
+
 def part_two():
-	return "NOT IMPLEMENTED"
+	race = given_two()
+	lower, upper = search_win_bounds(race)
+	return (upper - lower + 1)
 
 # --- Main Program --- #
 
