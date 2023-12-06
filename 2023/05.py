@@ -19,15 +19,6 @@ class Map:
 				return dest_start + (given - source_start)
 		return given
 
-	# Specially for part two
-
-	@property
-	def mapping_ranges(self):
-		return [(range(s, s + l), d-s) for d, s, l in self.mappings]
-
-	def __repr__(self) -> str:
-		return f"Map({self.source}, {self.target}) -> {self.mappings}"
-
 def process_map(lines: list[str]) -> Map:
 	descriptor_match = re.fullmatch(r"(\w+)-to-(\w+) map:", lines[0])
 	source = descriptor_match.group(1)
@@ -106,7 +97,8 @@ def min_locations_efficient(seed_ranges, maps) -> int:
 
 		# 1. Slice ranges to match those in the map...
 		# 2. ...and transform ranges according to map
-		map_ranges = sorted(map_.mapping_ranges, key=lambda r_o: r_o[0].start)
+		map_ranges = [(range(s, s + l), d-s) for d, s, l in map_.mappings]
+		map_ranges.sort(key=lambda r_o: r_o[0].start)
 
 		sliced_ranges = []
 		mapr_idx = 0
