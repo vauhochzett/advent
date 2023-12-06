@@ -35,13 +35,18 @@ class Race:
 	def __repr__(self) -> str:
 		return f"Race(time={self.time}, distance={self.distance})"
 
+# --- Part One --- #
+
+# How many distinct ways exist to win the race based on the button_hold_time?
+# Multiply the distinct ways for each race.
+
 def process_number_table(line: str) -> list[int]:
 	"""Convert string with a list of numbers separated by arbitrary number of spaces into `int`s."""
 	line = line[11:]
 	line_normalized = re.sub(" +", " ", line.strip())
 	return [int(value) for value in line_normalized.split(" ")]
 
-def given():
+def given_one():
 	with open(FILE_TO_READ, encoding="utf-8") as given_file:
 		lines = [l.rstrip("\n") for l in given_file.readlines()]
 	times = process_number_table(lines[0])
@@ -51,11 +56,6 @@ def given():
 	for time, distance in zip(times, distances):
 		races.append(Race(time, distance))
 	return races
-
-# --- Part One --- #
-
-# How many distinct ways exist to win the race based on the button_hold_time?
-# Multiply the distinct ways for each race.
 
 def search_win_bounds(race: Race) -> tuple[int, int]:
 	"""Return minimum and maximum button_hold_time to exceed the race distance."""
@@ -91,7 +91,7 @@ def search_win_bounds(race: Race) -> tuple[int, int]:
 			raise RuntimeError("something went wrong")
 
 def part_one():
-	races = given()
+	races = given_one()
 
 	number_of_ways = 1
 
