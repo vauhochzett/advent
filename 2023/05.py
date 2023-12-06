@@ -55,11 +55,7 @@ def min_location_from_seeds(seeds, maps) -> int:
 	current_items = seeds.copy()
 	while current_level != "location":
 		current_level, map_ = maps[current_level]
-		updated_items = []
-		for item in current_items:
-			updated_items.append(map_.resolve(item))
-		current_items = updated_items
-	
+		current_items = [map_.resolve(item) for item in current_items]
 	return min(current_items)
 
 # --- Part One --- #
