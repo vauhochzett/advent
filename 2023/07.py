@@ -141,8 +141,68 @@ def part_one():
 
 # --- Part Two --- #
 
+VALUES_TWO = {
+	c: v
+	for (v, c) in enumerate(
+		["J"] + [str(v) for v in range(2, 10)] + ["T", "Q", "K", "A"],
+		start=1
+	)
+}
+
+def hand_type_two(play: Play) -> HandType:
+	base_type = hand_type_one(play)
+	joker = Card("J")
+
+	# Cannot be improved by joker
+	if base_type == HandType.FIVE_OF_KIND:
+		return base_type
+
+	# Other hands can be improved only by joker
+	if not joker in play.hand:
+		return base_type
+
+	joker_count = play.hand.count(joker)
+
+	# We know that we have at most four of a kind and at least one joker.
+	# We resolve by first matching the joker count and then the concrete hand.
+	return {
+		4: {
+			# Only one case possible, as we exclude five of kind above
+			HandType.FOUR_OF_KIND: HandType.FIVE_OF_KIND,
+		},
+		3: {
+			# The two other cards are identical: JJJXX -> XXXXX
+			HandType.FULL_HOUSE: HandType.FIVE_OF_KIND,
+			# The others differ: JJJXY -> XXXXY
+			HandType.THREE_OF_KIND: HandType.FOUR_OF_KIND,
+		},
+		2: {
+			# The other three cards are identical: JJXXX -> XXXXX
+			HandType.FULL_HOUSE: HandType.FIVE_OF_KIND,
+			# Two of the other three cards are identical: JJXXY -> XXXXY
+			HandType.TWO_PAIRS: HandType.FOUR_OF_KIND,
+			# All three other cards differ: JJXYZ -> XXXYZ
+			HandType.ONE_PAIR: HandType.THREE_OF_KIND,
+		},
+		1: {
+			# The other four cards are identical: JXXXX -> XXXXX
+			HandType.FOUR_OF_KIND: HandType.FIVE_OF_KIND,
+			# Three of the other four cards are identical: JXXXY -> XXXXY
+			HandType.THREE_OF_KIND: HandType.FOUR_OF_KIND,
+			# The other four cards are two pairs: JXXYY -> XXXYY
+			HandType.TWO_PAIRS: HandType.FULL_HOUSE,
+			# Two of the other four cards are identical: JXXYZ -> XXXYZ
+			HandType.ONE_PAIR: HandType.THREE_OF_KIND,
+			# All four other cards differ: JWXYZ -> WWXYZ
+			HandType.HIGH_CARD: HandType.ONE_PAIR,
+		}
+	}[joker_count][base_type]
+
+
 def part_two():
-	return "NOT IMPLEMENTED"
+	Card.VALUES = VALUES_TWO
+	Play.hand_type = hand_type_two
+	return calculate_winnings()
 
 # --- Main Program --- #
 
