@@ -35,13 +35,7 @@ class HandType(Enum):
 
 @total_ordering
 class Card:
-	VALUES = {
-		c: v
-		for (v, c) in enumerate(
-			[str(v) for v in range(2, 10)] + ["T", "J", "Q", "K", "A"],
-			start=2
-		)
-	}
+	VALUES = None
 
 	def __init__(self, label: str):
 		self.label = label
@@ -75,30 +69,6 @@ class Play:
 		self.hand: list[Card] = [Card(c) for c in hand]
 		self.bid: int = int(bid)
 
-	def hand_type(self) -> HandType:
-		card_counts = Counter()
-		for card in self.hand:
-			card_counts[card] += 1
-		most_often = sorted(card_counts.items(), key=lambda t: t[1], reverse=True)
-
-		# For five of a kind, we only have one element, so our `match` would not work.
-		if len(most_often) == 1:
-			return HandType.FIVE_OF_KIND
-
-		match most_often[0][1], most_often[1][1]:
-			case (4, _):
-				return HandType.FOUR_OF_KIND
-			case (3, 2):
-				return HandType.FULL_HOUSE
-			case (3, _):
-				return HandType.THREE_OF_KIND
-			case (2, 2):
-				return HandType.TWO_PAIRS
-			case (2, _):
-				return HandType.ONE_PAIR
-			case _:
-				return HandType.HIGH_CARD
-
 	def __gt__(self, other) -> bool:
 		if not isinstance(other, Play):
 			return NotImplemented
@@ -124,13 +94,50 @@ def given():
 		for line in given_file:
 			yield parse_line(line.rstrip("\n"))
 
-# --- Part One --- #
-
-def part_one():
+def calculate_winnings() -> int:
 	total_winnings: int = 0
 	for rank, play in enumerate(sorted(given()), start=1):
 		total_winnings += rank * play.bid
 	return total_winnings
+
+# --- Part One --- #
+
+VALUES_ONE = {
+	c: v
+	for (v, c) in enumerate(
+		[str(v) for v in range(2, 10)] + ["T", "J", "Q", "K", "A"],
+		start=2
+	)
+}
+
+def hand_type_one(play: Play) -> HandType:
+	card_counts = Counter()
+	for card in play.hand:
+		card_counts[card] += 1
+	most_often = sorted(card_counts.items(), key=lambda t: t[1], reverse=True)
+
+	# For five of a kind, we only have one element, so our `match` would not work.
+	if len(most_often) == 1:
+		return HandType.FIVE_OF_KIND
+
+	match most_often[0][1], most_often[1][1]:
+		case (4, _):
+			return HandType.FOUR_OF_KIND
+		case (3, 2):
+			return HandType.FULL_HOUSE
+		case (3, _):
+			return HandType.THREE_OF_KIND
+		case (2, 2):
+			return HandType.TWO_PAIRS
+		case (2, _):
+			return HandType.ONE_PAIR
+		case _:
+			return HandType.HIGH_CARD
+
+def part_one():
+	Card.VALUES = VALUES_ONE
+	Play.hand_type = hand_type_one
+	return calculate_winnings()
 
 # --- Part Two --- #
 
