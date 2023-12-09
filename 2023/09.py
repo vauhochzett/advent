@@ -16,6 +16,10 @@ class ValueHistory:
 		return ValueHistory(values)
 	def all_zeroes(self) -> bool:
 		return all(d == 0 for d in self.data)
+	def prev_value(self) -> int:
+		if self.all_zeroes():
+			return 0
+		return self.data[0] - self.deltas().prev_value()
 	def next_value(self) -> int:
 		if self.all_zeroes():
 			return 0
@@ -40,7 +44,10 @@ def part_one():
 # --- Part Two --- #
 
 def part_two():
-	return "NOT IMPLEMENTED"
+	sum_of_prev_values: int = 0
+	for value_history in given():
+		sum_of_prev_values += value_history.prev_value()
+	return sum_of_prev_values
 
 # --- Main Program --- #
 
