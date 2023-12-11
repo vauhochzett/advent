@@ -15,6 +15,16 @@ def given():
     return lines_matrix
 
 
+def galaxies(space: list[list[str]]) -> list[tuple[int, int]]:
+    """Return a list of coordinates (row, col) of "galaxies" (i.e., "#" characters)."""
+    galaxy_coordinates = []
+    for ri, row in enumerate(space):
+        for ci, cell in enumerate(row):
+            if cell == "#":
+                galaxy_coordinates.append((ri, ci))
+    return galaxy_coordinates
+
+
 # --- Part One --- #
 
 
@@ -46,11 +56,7 @@ def part_one():
 
     # 2) Find all galaxies ("#")
 
-    galaxy_coordinates = []
-    for ri, row in enumerate(space):
-        for ci, cell in enumerate(row):
-            if cell == "#":
-                galaxy_coordinates.append((ri, ci))
+    galaxy_coordinates = galaxies(space)
 
     # 3) Calculate shortest path between all pairs
 
