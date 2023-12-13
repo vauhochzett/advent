@@ -86,22 +86,51 @@ def possible_arrangements(pattern: str, group_sizes: list[int]) -> int:
     """Recursively count maximum number of arrangements for given group sizes in the pattern.
     Consumes group sizes that have been matched and removes them from the given list.
     Cuts off the matched part from the pattern and returns it."""
-    arrangement_count: int = 0
 
-    for group_size in group_sizes:
-        # If there is not enough question marks in the beginning to place our group
-        # (would require group_size + 1, as we need at least one delimiter), we know
-        # the group must contain the hash.
-        if "#" in pattern[: group_size + 1]:
-            subpattern = re.match(r"^(\?*\#+\??)", pattern).group(1)
-            breakpoint()
-            if obvious_match(subpattern, group_size):
-                arrangement_count += 1
-                return arrangement_count + possible_arrangements(
-                    pattern[len(subpattern) :], group_sizes[1:]
-                )
+    # Terminate if we can't find any match for all groups in the pattern any more.
+    groups_regex = r"\?+".join([r"((?:#|\?){" + str(g) + "})" for g in group_sizes])
+    if re.search(groups_regex, pattern) is None:
+        return 0
 
-            raise NotImplementedError()
+    # If there is just one group remaining, we can place it arbitrarily
+    if len(group_sizes) == 1:
+        assert len(pattern) >= group_sizes[0]
+
+        # If we have only ? symbols, we can place this often
+        theoretical_placements = 1 + len(pattern) - group_sizes[0]
+
+        # But if we have hashes, we must always cover them completely
+        if pattern.count("#") == group_sizes[0]:
+            return 1
+
+        first_hash = re.match(r"\?*(#)", pattern).span()[1]
+        last_hash = re.search(r"(#)\?*$", pattern).span()[0]
+        hash_width = last_hash - first_hash
+
+        raise NotImplementedError()
+
+    # If there is more than one group remaining, we recursively check.
+
+    # Fix the first group and place all others until the others can't be placed any more
+    first_group_regex = r"((?:#|\?){" + str(group_sizes[0]) + "})"
+    # If we have at least one other group, we must capture one additional question mark
+    # to the right of the group as the "separator" to the next one.
+    if len(group_sizes) > 1:
+        first_group_regex += r"\?"
+    first_group_end = re.search(first_group_regex, pattern).span()[1]
+
+    # End case: Only one group remains. Then, we count this placement as 1.
+    arrangement_count: int = 1
+    # If we have more groups still, we instead count all their possible sub-arrangements
+    if len(group_sizes) > 1:
+        rest = pattern[first_group_end:]
+        arrangement_count = possible_arrangements(rest, group_sizes[1:])
+
+    # If we have a question mark in the beginning, it could be a period;
+    # so we remove it and recursively try again.
+    if pattern[0] != "#":
+        arrangement_count + possible_arrangements(pattern[1:], group_sizes)
+    return arrangement_count
 
 
 def count_arrangement_options(patterns: list[str], group_sizes: list[int]) -> int:
