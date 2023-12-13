@@ -70,18 +70,16 @@ def obvious_match(pattern: str, group_size: int) -> bool:
 
 def remove_obvious_matches(
     patterns: list[str], groups: list[int], check_index: int
-) -> int:
+) -> None:
     """Remove all pattern-group pairs where the `pattern` has exactly `group` hashes."""
-    removed: int = 0
     while True:
         if len(patterns) == 0:
             assert len(groups) == 0
-            return removed
+            return
         if not obvious_match(patterns[check_index], groups[check_index]):
-            return removed
+            return
         patterns.pop(check_index)
         groups.pop(check_index)
-        removed += 1
 
 
 def possible_arrangements(pattern: str, group_sizes: list[int]) -> int:
@@ -107,12 +105,15 @@ def possible_arrangements(pattern: str, group_sizes: list[int]) -> int:
 
 
 def count_arrangement_options(patterns: list[str], group_sizes: list[int]) -> int:
-    result: int = 0
     assert len(group_sizes) >= len(patterns)
 
     # Remove all pattern-group pairs from the outside that are obvious
-    result += remove_obvious_matches(patterns, group_sizes, 0)
-    result += remove_obvious_matches(patterns, group_sizes, -1)
+    remove_obvious_matches(patterns, group_sizes, 0)
+    remove_obvious_matches(patterns, group_sizes, -1)
+
+    # All matches were obvious
+    if not patterns and not group_sizes:
+        return 1
 
     # Each pattern must correspond to one group (also handles case of both lists being empty)
     if len(patterns) == len(group_sizes):
