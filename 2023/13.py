@@ -39,6 +39,27 @@ class Pattern(list):
         # If no check failed, we found a reflection line
         return True
 
+    def calculate_reflection_score(self) -> int:
+        """Find reflection lines, count columns and rows before, return score."""
+        result: int = 0
+        # Check columns
+        reflecting_column_lines: list[tuple[int, int]] = []
+        for left, right in itertools.pairwise(range(len(self[0]))):
+            if self.column_line_reflects((left, right)):
+                reflecting_column_lines.append((left, right))
+        # Check rows
+        reflecting_row_lines: list[tuple[int, int]] = []
+        for top, bottom in itertools.pairwise(range(len(self))):
+            if self.row_line_reflects((top, bottom)):
+                reflecting_row_lines.append((top, bottom))
+
+        # Calculate
+        for left, _ in reflecting_column_lines:
+            result += left + 1  # index that counts to the left is 0-based
+        for top, _ in reflecting_row_lines:
+            result += 100 * (top + 1)
+        return result
+
 
 def given() -> Iterable[Pattern]:
     with open(FILE_TO_READ, encoding="utf-8") as given_file:
@@ -51,25 +72,7 @@ def given() -> Iterable[Pattern]:
 
 
 def part_one():
-    result: int = 0
-    for pattern in given():
-        # Check columns
-        reflecting_column_lines: list[tuple[int, int]] = []
-        for left, right in itertools.pairwise(range(len(pattern[0]))):
-            if pattern.column_line_reflects((left, right)):
-                reflecting_column_lines.append((left, right))
-        # Check rows
-        reflecting_row_lines: list[tuple[int, int]] = []
-        for top, bottom in itertools.pairwise(range(len(pattern))):
-            if pattern.row_line_reflects((top, bottom)):
-                reflecting_row_lines.append((top, bottom))
-
-        # Calculate
-        for left, _ in reflecting_column_lines:
-            result += left + 1  # index that counts to the left is 0-based
-        for top, _ in reflecting_row_lines:
-            result += 100 * (top + 1)
-    return result
+    return sum([pattern.calculate_reflection_score() for pattern in given()])
 
 
 # --- Part Two --- #
