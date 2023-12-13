@@ -53,9 +53,9 @@ class Pattern(list):
         return reflecting_row_lines
 
     def calculate_reflection_score(self) -> int:
-        reflecting_column_lines = self.reflecting_column_lines()
-        reflecting_row_lines = self.reflecting_row_lines()
-        return calculate_reflection_score(reflecting_column_lines, reflecting_row_lines)
+        return calculate_reflection_score(
+            self.reflecting_column_lines(), self.reflecting_row_lines()
+        )
 
 
 def calculate_reflection_score(
@@ -64,8 +64,6 @@ def calculate_reflection_score(
 ) -> int:
     """Find reflection lines, count columns and rows before, return score."""
     result: int = 0
-
-    # Calculate
     for left, _ in reflecting_column_lines:
         result += left + 1  # index that counts to the left is 0-based
     for top, _ in reflecting_row_lines:
