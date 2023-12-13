@@ -8,8 +8,7 @@ FILE_TO_READ = "13_input"
 
 
 import itertools
-from pprint import pprint
-from typing import Iterable
+from typing import Iterable, Optional
 
 
 class Pattern(list):
@@ -54,24 +53,33 @@ class Pattern(list):
         return reflecting_row_lines
 
     def calculate_reflection_score(self) -> int:
-        """Find reflection lines, count columns and rows before, return score."""
-        result: int = 0
         reflecting_column_lines = self.reflecting_column_lines()
         reflecting_row_lines = self.reflecting_row_lines()
+        return calculate_reflection_score(reflecting_column_lines, reflecting_row_lines)
 
-        # Calculate
-        for left, _ in reflecting_column_lines:
-            result += left + 1  # index that counts to the left is 0-based
-        for top, _ in reflecting_row_lines:
-            result += 100 * (top + 1)
-        return result
+
+def calculate_reflection_score(
+    reflecting_column_lines: list[tuple[int, int]],
+    reflecting_row_lines: list[tuple[int, int]],
+) -> int:
+    """Find reflection lines, count columns and rows before, return score."""
+    result: int = 0
+
+    # Calculate
+    for left, _ in reflecting_column_lines:
+        result += left + 1  # index that counts to the left is 0-based
+    for top, _ in reflecting_row_lines:
+        result += 100 * (top + 1)
+    return result
 
 
 def given() -> Iterable[Pattern]:
     with open(FILE_TO_READ, encoding="utf-8") as given_file:
         text = given_file.read()
     for pattern_line in text.split("\n\n"):
-        yield Pattern([l.rstrip("\n") for l in pattern_line.rstrip("\n").split("\n")])
+        yield Pattern(
+            [list(l.rstrip("\n")) for l in pattern_line.rstrip("\n").split("\n")]
+        )
 
 
 # --- Part One --- #
@@ -84,8 +92,61 @@ def part_one():
 # --- Part Two --- #
 
 
+def new_reflection_line(
+    base: list[tuple[int, int]], changed: list[tuple[int, int]]
+) -> Optional[tuple[int, int]]:
+    """If a new reflection line is in `changed` that is not in `base`, return it.
+    Otherwise, return `None`."""
+    if not changed:
+        return None
+
+    if not base:
+        assert len(changed) == 1
+        return changed[0]
+
+    assert len(base) == 1
+    if len(changed) > 1:
+        base_removed = list(set(changed) - set(base))
+        assert len(base_removed) == 1
+        return base_removed[0]
+
+    assert len(changed) == 1
+    if base[0] != changed[0]:
+        return changed[0]
+    return None
+
+
 def part_two():
-    return "NOT IMPLEMENTED"
+    result: int = 0
+    for pattern in given():
+        base_reflecting_column_lines = pattern.reflecting_column_lines()
+        base_reflecting_row_lines = pattern.reflecting_row_lines()
+        assert len(base_reflecting_column_lines) <= 1
+        assert len(base_reflecting_row_lines) <= 1
+
+        # Try to flip each cell once and check if a new reflection line appears
+        for row_i, col_i in itertools.product(
+            range(len(pattern)), range(len(pattern[0]))
+        ):
+            stored_val = pattern[row_i][col_i]
+            pattern[row_i][col_i] = "#" if stored_val == "." else "."
+            # Check if a new column reflection line has appeared
+            new_rcl = new_reflection_line(
+                base_reflecting_column_lines, pattern.reflecting_column_lines()
+            )
+            if new_rcl is not None:
+                result += calculate_reflection_score([new_rcl], [])
+                break
+            # Check for rows
+            new_rrl = new_reflection_line(
+                base_reflecting_row_lines, pattern.reflecting_row_lines()
+            )
+            if new_rrl is not None:
+                result += calculate_reflection_score([], [new_rrl])
+                break
+            # Reset changed cell
+            pattern[row_i][col_i] = stored_val
+    return result
 
 
 # --- Main Program --- #
