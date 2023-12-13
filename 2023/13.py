@@ -39,19 +39,25 @@ class Pattern(list):
         # If no check failed, we found a reflection line
         return True
 
-    def calculate_reflection_score(self) -> int:
-        """Find reflection lines, count columns and rows before, return score."""
-        result: int = 0
-        # Check columns
+    def reflecting_column_lines(self) -> list[tuple[int, int]]:
         reflecting_column_lines: list[tuple[int, int]] = []
         for left, right in itertools.pairwise(range(len(self[0]))):
             if self.column_line_reflects((left, right)):
                 reflecting_column_lines.append((left, right))
-        # Check rows
+        return reflecting_column_lines
+
+    def reflecting_row_lines(self) -> list[tuple[int, int]]:
         reflecting_row_lines: list[tuple[int, int]] = []
         for top, bottom in itertools.pairwise(range(len(self))):
             if self.row_line_reflects((top, bottom)):
                 reflecting_row_lines.append((top, bottom))
+        return reflecting_row_lines
+
+    def calculate_reflection_score(self) -> int:
+        """Find reflection lines, count columns and rows before, return score."""
+        result: int = 0
+        reflecting_column_lines = self.reflecting_column_lines()
+        reflecting_row_lines = self.reflecting_row_lines()
 
         # Calculate
         for left, _ in reflecting_column_lines:
