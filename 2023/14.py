@@ -64,11 +64,7 @@ def given() -> Dish:
 
 def part_one():
     dish = given()
-
-    # Move all boulders north
     dish.tilt_north()
-
-    # Calculate the load
     return dish.load()
 
 
