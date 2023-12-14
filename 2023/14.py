@@ -42,6 +42,15 @@ class Dish(list):
                 # We can continue placing after the current boundary
                 pointer = boundary_i + 1
 
+    def load(self) -> int:
+        """Sum up the load on the north beam."""
+        # Idea: Count downwards by row and enumerate in reverse.
+        summed_load: int = 0
+        for load_index, row in zip(itertools.count(len(self), -1), self):
+            summed_load += load_index * row.count("O")
+        return summed_load
+
+
 
 def given() -> Dish:
     with open(FILE_TO_READ, encoding="utf-8") as given_file:
@@ -60,11 +69,7 @@ def part_one():
     dish.tilt_north()
 
     # Calculate the load
-    # Idea: Count downwards by row and enumerate in reverse.
-    summed_load: int = 0
-    for load_index, row in zip(itertools.count(len(dish), -1), dish):
-        summed_load += load_index * row.count("O")
-    return summed_load
+    return dish.load()
 
 
 # --- Part Two --- #
