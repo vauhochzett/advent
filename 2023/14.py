@@ -5,7 +5,6 @@ FILE_TO_READ = "14_input"
 # Fixed rocks (#), rolling rocks (O), and empty space (.)
 # "Roll" all O's north
 # Load is the 1-based index of the rows counting from the bottom.
-# What is the sum of the load of all O's?
 
 
 import itertools
@@ -23,6 +22,26 @@ class Dish(list):
                 boulders.append(row_i)
         return (hashes, boulders)
 
+    def tilt_north(self) -> None:
+        """Move all boulders as if the platform was tilted north."""
+        # Idea: Determine the # before and after and move all O's between them to the top.
+        for col in range(len(self[0])):
+            hashes, boulders = self.rocks_in(col)
+            # As we always place before, we need an imaginary last index
+            boundaries = hashes + [len(self)]
+            pointer: int = 0
+            for boundary_i in boundaries:
+                while boulders and boulders[0] < boundary_i:
+                    # Consume the boulder
+                    boulder_i = boulders.pop(0)
+                    self[pointer][col], self[boulder_i][col] = (
+                        self[boulder_i][col],
+                        self[pointer][col],
+                    )
+                    pointer += 1
+                # We can continue placing after the current boundary
+                pointer = boundary_i + 1
+
 
 def given() -> Dish:
     with open(FILE_TO_READ, encoding="utf-8") as given_file:
@@ -31,28 +50,14 @@ def given() -> Dish:
 
 # --- Part One --- #
 
+# What is the sum of the load of all O's after tilting north once?
+
 
 def part_one():
     dish = given()
 
     # Move all boulders north
-    # Idea: Determine the # before and after and move all O's between them to the top.
-    for col in range(len(dish[0])):
-        hashes, boulders = dish.rocks_in(col)
-        # As we always place before, we need an imaginary last index
-        boundaries = hashes + [len(dish)]
-        pointer: int = 0
-        for boundary_i in boundaries:
-            while boulders and boulders[0] < boundary_i:
-                # Consume the boulder
-                boulder_i = boulders.pop(0)
-                dish[pointer][col], dish[boulder_i][col] = (
-                    dish[boulder_i][col],
-                    dish[pointer][col],
-                )
-                pointer += 1
-            # We can continue placing after the current boundary
-            pointer = boundary_i + 1
+    dish.tilt_north()
 
     # Calculate the load
     # Idea: Count downwards by row and enumerate in reverse.
