@@ -42,6 +42,15 @@ class Dish(list):
                 # We can continue placing after the current boundary
                 pointer = boundary_i + 1
 
+    def turned_right(self):  # type: () -> Dish
+        """Turn by 90 degrees (to the right). Makes the previous west the new north."""
+        # Can't simply multiply the empty list as this would lead to the same list reference.
+        transposed_dish = Dish([list() for _ in range(len(self[0]))])
+        # We need to iterate by column, moving from bottom to top through the rows
+        for col_i, row_i in itertools.product(range(len(self[0])), range(len(self) - 1, -1, -1)):
+            transposed_dish[col_i].append(self[row_i][col_i])
+        return transposed_dish
+
     def load(self) -> int:
         """Sum up the load on the north beam."""
         # Idea: Count downwards by row and enumerate in reverse.
@@ -70,9 +79,20 @@ def part_one():
 
 # --- Part Two --- #
 
+# What is the load sum after 1e9 cycles of tilting north, west, south, east?
+
 
 def part_two():
-    return "NOT IMPLEMENTED"
+    dish = given()
+
+    # Cycle
+    for i in range(1_000_000_000):
+        for _ in range(4):
+            dish.tilt_north()
+            dish = dish.turned_right()
+
+    # Calculate the load
+    return dish.load()
 
 
 # --- Main Program --- #
