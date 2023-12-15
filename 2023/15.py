@@ -9,6 +9,9 @@ FILE_TO_READ = "15_input"
 # - Set the current value to the remainder of dividing itself by 256
 
 
+from typing import Iterable
+
+
 def HASH(value: str) -> int:
     result: int = 0
     for char in value:
@@ -18,11 +21,12 @@ def HASH(value: str) -> int:
     return result
 
 
-def given():
+def given() -> Iterable[str]:
     with open(FILE_TO_READ, encoding="utf-8") as given_file:
         lines = given_file.readlines()
     assert len(lines) == 1
-    return lines[0].rstrip("\n")
+    line = lines[0].rstrip("\n")
+    yield from line.split(",")
 
 
 # --- Part One --- #
@@ -30,7 +34,7 @@ def given():
 
 def part_one():
     summed_hashes: int = 0
-    for value in given().split(","):
+    for value in given():
         summed_hashes += HASH(value)
     return summed_hashes
 
