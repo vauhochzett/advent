@@ -91,6 +91,15 @@ class Grid(list):  # list[list[Cell]]
             self.light_tails.add(lh)
         self.light_heads = new_light_heads
 
+    def energize(self) -> int:
+        """Iterate the light heads until no new cells are covered."""
+        while self.light_heads:
+            self.iterate()
+        energized = set()
+        for lt in self.light_tails:
+            energized.add((lt.row, lt.col))
+        return len(energized)
+
     def print(self) -> str:
         result = []
         for row in self:
@@ -118,12 +127,7 @@ def given() -> Grid:
 
 def part_one():
     grid = given()
-    while grid.light_heads:
-        grid.iterate()
-    energized = set()
-    for lt in grid.light_tails:
-        energized.add((lt.row, lt.col))
-    return len(energized)
+    return grid.energize()
 
 
 # --- Part Two --- #
