@@ -100,6 +100,11 @@ class Grid(list):  # list[list[Cell]]
             energized.add((lt.row, lt.col))
         return len(energized)
 
+    def reset(self) -> None:
+        """Remove all light heads and tails."""
+        self.light_heads = set()
+        self.light_tails = set()
+
     def print(self) -> str:
         result = []
         for row in self:
@@ -132,9 +137,24 @@ def part_one():
 
 # --- Part Two --- #
 
+# If the beam can start at any edge tile, what's the maximum number of tiles that can be energized?
+
 
 def part_two():
-    return "NOT IMPLEMENTED"
+    grid = given()
+    max_energy: int = 0
+    for row, d_row in [(0, 1), (len(grid) - 1, -1)]:
+        for col in range(len(grid[0])):
+            grid.light_heads = {LightPoint(row, col, d_row, 0)}
+            max_energy = max(max_energy, grid.energize())
+            grid.reset()
+    for col, d_col in [(0, 1), (len(grid[0]) - 1, -1)]:
+        for row in range(len(grid)):
+            grid.light_heads = {LightPoint(row, col, 0, d_col)}
+            max_energy = max(max_energy, grid.energize())
+            grid.reset()
+
+    return max_energy
 
 
 # --- Main Program --- #
