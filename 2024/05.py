@@ -3,7 +3,6 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import total_ordering
-from unittest import TestCase
 
 # --- Part One --- #
 
@@ -66,11 +65,8 @@ def part_two(
     Order.befores_and_afters = befores_and_afters
     for update in updates:
         ordered = sorted(update, key=Order)
-        try:
-            TestCase().assertListEqual(update, ordered)
+        if ordered == update:
             continue
-        except AssertionError:
-            pass
         middle = ordered[len(update) // 2]
         summed_middle_page_numbers += middle
     return summed_middle_page_numbers
